@@ -1,0 +1,4 @@
+﻿A tiny example of how to access the DivX Web Player Javascript API.
+This is a small proof of concept on how you can take control of the player and register different user and player events.
+Read the complete official documentation at http://labs.divx.com/node/16582
+
