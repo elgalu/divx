@@ -1,0 +1,141 @@
+<html>
+  <head>
+  	<title>Controlling the DivX Web Player with Javascript</title>
+    <!-- Include jQuery last version from jquery.com -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+  </head>
+  <body>
+  <p>
+    A tiny example of how to access the DivX Web Player Javascript API.
+    This is a small proof of concept on how you can take control of the player and register different user and player events.
+    You can find complete source code of this sample here: <a href="https://github.com/elgalu/divx">elgalu/divx</a>
+  </p>
+  <a href="http://labs.divx.com/node/16582">Official documentation</a>
+  
+  <div id="divx_container" style="width: 710px; float: left;">
+    <object id="ie_plugin" width="690" height="396" 
+            classid="clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616" codebase="http://go.divx.com/plugin/DivXBrowserPlugin.cab">
+      <param name="custommode" value="none" />
+      <param name="previewImage" value="" />
+      <param name="autoPlay" value="false" />
+      <param name="statusCallback" value="myStatusCallback" /> 
+      <param name="src" value="http://download.divx.com/divxlabs/Apples_and_Oranges_Trailer_720-12Mbps.divx" />
+      <!-- Here i tell the player to insert my hook function, for IE -->
+    <embed id="np_plugin" width="690" height="396"
+            src="http://download.divx.com/divxlabs/Apples_and_Oranges_Trailer_720-12Mbps.divx" 
+            type="video/divx" custommode="none" autoPlay="false" previewImage="" pluginspage="http://go.divx.com/plugin/download/"
+            statusCallback="myStatusCallback"
+            >
+    </embed>
+    </object>
+    
+    <!-- Friendly message if plugin is missing -->
+    <div id="get_divx_player" style="margin: 0 0 1em 0;">
+    No video? Get the DivX Web Player for 
+    <a style="text-decoration: underline;"
+       href="http://download.divx.com/player/DivXWebPlayerInstaller.exe">Windows</a> or 
+    <a style="text-decoration: underline;" 
+       href="http://download.divx.com/player/DivXWebPlayer.dmg">Mac</a>
+    </div>
+    
+    <!-- Player custom controls -->
+    <div id="custom_controls" style="width: 690px; height: 50px; border: 2px solid DarkBlue; padding: 10px;">
+      <style type="text/css"> .divx-button { margin: 2px 6px; } </style>
+      <span class="divx-button"><a href="#" onclick="javascript: DivxHelper.plugin.Play();">  Play  </a></span>
+      <span class="divx-button"><a href="#" onclick="javascript: DivxHelper.plugin.Pause();"> Pause </a></span>
+      <span class="divx-button"><a href="#" onclick="javascript: DivxHelper.plugin.Stop();">  Stop  </a></span>
+      <span class="divx-button"><a href="#" onclick="javascript: DivxHelper.plugin.Mute();">  Mute  </a></span>
+      <span class="divx-button"><a href="#" onclick="javascript: DivxHelper.plugin.UnMute();">Unmute</a></span>
+    </div>
+  </div>
+    
+  <!-- A tiny log window to see what's happening -->
+  <div id="my_log_window" style="width: 400px; height: 446px; float: left; border: 2px solid; padding: 5px; overflow-y: scroll;">
+  </div>
+  
+  <!-- Javascript usage of DivX Web Player API -->
+  <script language="javascript">
+    // Define some callback functions for later use
+    function myStatusCallback(event_value) {
+      $('#get_divx_player').hide(); // If we recieve the callback is because the player is already installed
+      $('#my_log_window').append("<p>statusCallback event: " + DivxHelper.what_status(event_value) + "</p>");
+    }
+  </script>
+  
+  <!-- Javascript control -->
+  <script language="javascript">
+    // Read more here: http://labs.divx.com/node/16582
+    $(document).ready(function() {
+      // Show DivX Web Player installed version:
+      $('#my_log_window').append("<p>Plugin version: " + DivxHelper.plugin.GetVersion() + "</p>");
+      // TODO: Test changin the preview image:
+      // http://muzzona.net/uploads/posts/2009-09/1251929684_4380138b39838b836ee1238faa7c0965ff6eadb.jpg
+    });
+    
+  </script>
+  
+  <!-- Javascript helper objects and functions -->
+  <script language="javascript">
+    // I'm going to use a namespace object function for saving some constants and stuff.
+    // Think of this as a singleton divx object helper that we will use throughout the app.
+    var DivxHelper = function() {
+      var _status;
+      var _what_status = {};
+      var _plugin;
+
+      // Set plugin object
+      if (navigator.userAgent.indexOf('MSIE') != -1) {   
+        _plugin = document.getElementById('ie_plugin');   
+      } else {   
+        _plugin = document.getElementById('np_plugin');   
+      }
+      
+      // Hash of DivX status "constants"
+      _status = {
+        INIT_DONE: 0,
+        OPEN_DONE: 1,
+        VIDEO_END: 2,
+        SHUT_DONE: 3,
+        EMBEDDED_START: 4,
+        EMBEDDED_END: 5,
+        WINDOWED_START: 6,
+        WINDOWED_END: 7,
+        FULLSCREEN_START: 8,
+        FULLSCREEN_END: 9,
+        STATUS_PLAYING: 10,
+        STATUS_PAUSED: 11,
+        STATUS_FF: 12,
+        STATUS_RW: 13,
+        STATUS_STOPPED: 14,
+        BUFFERING_START: 15,
+        BUFFERING_STOP: 16,
+        DOWNLOAD_START: 17,
+        DOWNLOAD_FAILED: 18,
+        DOWNLOAD_DONE: 19
+      }
+      // Reverse status hash
+      for (var key in _status) {
+        var value = _status[key];
+        _what_status[value] = key;
+      }
+
+      return {
+        status : function() {
+          // Sample call: DivxHelper.status.DOWNLOAD_START
+          //=>  17
+          return _status; //{INIT_DONE: 0, OPEN_DONE: 1};
+        }(),
+        what_status : function(value) {
+          // Sample call: DivxHelper.what_status(19)
+          //=>  "DOWNLOAD_DONE"
+          return _what_status[value];
+        },
+        plugin : function() {
+          return _plugin;
+        }()
+      };
+    }();
+  </script>
+  
+  </body>
+</html>
