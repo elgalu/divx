@@ -11,33 +11,35 @@
     You can find complete source code of this sample at <a href="https://github.com/elgalu/divx">elgalu/divx</a> and complete official documentation
     <a href="http://labs.divx.com/node/16582">here</a>
   </p>
-  
+
   <div id="divx_container" style="width: 710px; float: left;">
-    <object id="ie_plugin" width="690" height="396" 
-            classid="clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616" codebase="http://go.divx.com/plugin/DivXBrowserPlugin.cab">
+    <object id="ie_plugin" width="690" height="396"
+            classid="clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616"
+            codebase="http://go.divx.com/plugin/DivXBrowserPlugin.cab">
       <param name="custommode" value="none" />
       <param name="previewImage" value="" />
       <param name="autoPlay" value="false" />
-      <param name="statusCallback" value="myStatusCallback" /> 
+      <param name="statusCallback" value="myStatusCallback" />
       <param name="src" value="http://download.divx.com/divxlabs/Apples_and_Oranges_Trailer_720-12Mbps.divx" />
       <!-- Here i tell the player to insert my hook function, for IE -->
     <embed id="np_plugin" width="690" height="396"
-            src="http://download.divx.com/divxlabs/Apples_and_Oranges_Trailer_720-12Mbps.divx" 
-            type="video/divx" custommode="none" autoPlay="false" previewImage="" pluginspage="http://go.divx.com/plugin/download/"
+            src="http://download.divx.com/divxlabs/Apples_and_Oranges_Trailer_720-12Mbps.divx"
+            type="video/divx" custommode="none" autoPlay="false" previewImage=""
+            pluginspage="http://go.divx.com/plugin/download/"
             statusCallback="myStatusCallback"
             >
     </embed>
     </object>
-    
+
     <!-- Friendly message if plugin is missing -->
     <div id="get_divx_player" style="margin: 0 0 1em 0;">
-    No video? Get the DivX Web Player for 
+    No video? Get the DivX Web Player for
     <a style="text-decoration: underline;"
-       href="http://download.divx.com/player/DivXWebPlayerInstaller.exe">Windows</a> or 
-    <a style="text-decoration: underline;" 
+       href="http://download.divx.com/player/DivXWebPlayerInstaller.exe">Windows</a> or
+    <a style="text-decoration: underline;"
        href="http://download.divx.com/player/DivXWebPlayer.dmg">Mac</a>
     </div>
-    
+
     <!-- Player custom controls -->
     <div id="custom_controls" style="width: 690px; height: 50px; border: 2px solid DarkBlue; padding: 10px;">
       <style type="text/css"> .divx-button { margin: 2px 6px; } </style>
@@ -48,20 +50,21 @@
       <span class="divx-button"><a href="#" onclick="javascript: DivxHelper.plugin.UnMute();">Unmute</a></span>
     </div>
   </div>
-    
+
   <!-- A tiny log window to see what's happening -->
   <div id="my_log_window" style="width: 400px; height: 446px; float: left; border: 2px solid; padding: 5px; overflow-y: scroll;">
   </div>
-  
+
   <!-- Javascript usage of DivX Web Player API -->
   <script language="javascript">
     // Define some callback functions for later use
     function myStatusCallback(event_value) {
+      DWPState.last_status = event_value;
       $('#get_divx_player').hide(); // If we recieve the callback is because the player is already installed
       $('#my_log_window').append("<p>statusCallback event: " + DivxHelper.what_status(event_value) + "</p>");
     }
   </script>
-  
+
   <!-- Javascript control -->
   <script language="javascript">
     // Read more here: http://labs.divx.com/node/16582
@@ -71,11 +74,16 @@
       // TODO: Test changing the preview image with this one:
       // http://muzzona.net/uploads/posts/2009-09/1251929684_4380138b39838b836ee1238faa7c0965ff6eadb.jpg
     });
-    
+
   </script>
-  
+
   <!-- Javascript helper objects and functions -->
   <script language="javascript">
+    // DWP State Machine
+    var DWPState = new Object;
+    // hold last status known of the DWP
+    DWPState.last_status = undefined;
+
     // I'm going to use a namespace object function for saving some constants and stuff.
     // Think of this as a singleton divx object helper that we will use throughout the app.
     var DivxHelper = function() {
@@ -84,12 +92,12 @@
       var _plugin;
 
       // Set plugin object
-      if (navigator.userAgent.indexOf('MSIE') != -1) {   
-        _plugin = document.getElementById('ie_plugin');   
-      } else {   
-        _plugin = document.getElementById('np_plugin');   
+      if (navigator.userAgent.indexOf('MSIE') != -1) {
+        _plugin = document.getElementById('ie_plugin');
+      } else {
+        _plugin = document.getElementById('np_plugin');
       }
-      
+
       // Hash of DivX status "constants"
       _status = {
         INIT_DONE: 0,
@@ -119,6 +127,7 @@
         _what_status[value] = key;
       }
 
+      // Javascript way to hide internal implementation:
       return {
         status : function() {
           // Sample call: DivxHelper.status.DOWNLOAD_START
@@ -136,6 +145,7 @@
       };
     }();
   </script>
-  
+
   </body>
 </html>
+
